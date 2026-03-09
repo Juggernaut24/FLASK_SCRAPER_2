@@ -125,10 +125,10 @@ def company_side_scrape(driver, wait, timestamp):
                 "Address": clean_address,
             })
 
-        data["Branches"] = branches_list if branches_list else "N/A"
+        data["Branches"] = branches_list if branches_list else []
 
     except Exception:
-        data["Branches"] = "N/A"
+        data["Branches"] = []
 
 
     # --- Categories ---
@@ -889,6 +889,40 @@ def rekvizitai_scrape(query, timestamp, mode="name"):
         print(f"Fejl: {e}")
     finally:
         driver.quit()
+
+def scrape_rekvizitai_for_flask(query=None):
+    start_time = time.time()
+    results = []
+    errors = []
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    try:
+        if not query:
+            raise ValueError("Der blev ikke angivet et søgeord (query) til rekvizitai.vz.lt.")
+
+        raw_data = rekvizitai_scrape(query, timestamp, mode="name")
+        
+        if raw_data and "error" in raw_data:
+            errors.append(raw_data["error"])
+        elif raw_data:
+            results.append(raw_data)
+        else:
+            errors.append("Scraperen kørte, men returnerede ingen data.")
+
+    except Exception as e:
+        errors.append(str(e))
+
+    runtime_ms = int((time.time() - start_time) * 1000)
+
+    # 5. Returnér det format, som `app.py` forventer for at kunne lave JSON-log og sende til Elasticsearch
+    return {
+        "source": "Rekvizitai Scraper (Selenium)",
+        "query": query if query else "Ingen",
+        "runtime_ms": runtime_ms,
+        "results": results,
+        "errors": errors
+    }
 
 if __name__ == "__main__":
 

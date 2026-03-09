@@ -1,6 +1,6 @@
 import os
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from flask import Flask, render_template, request
 from elasticsearch import Elasticsearch
 
@@ -10,8 +10,12 @@ from scrapers.tirsdag_books import scrape_books_advanced
 from scrapers.country_scraper import country_scraper
 from scrapers.selenium_scrapers.selenium_scraper_1_pages import scrape_quotes_selenium
 from scrapers.selenium_scrapers.selenium_scraper_3_scroll import scrape_infinite_scroll
+from scrapers.new_scrapers.rekvizitai_scraper_3 import scrape_rekvizitai_for_flask
+from scrapers.new_scrapers.tjekbildk_scraper_8 import scrape_tjekbil_for_flask
 
 app = Flask(__name__)
+
+app.json.ensure_ascii = False
 
 SCRAPERS = {
     'quotes': scrape_quotes,
@@ -19,13 +23,35 @@ SCRAPERS = {
     'books advanced': scrape_books_advanced,
     'country': country_scraper,
     'selenium quotes': scrape_quotes_selenium,
-    'selenium scroll': scrape_infinite_scroll
+    'selenium scroll': scrape_infinite_scroll,
+    'rekvizitai': scrape_rekvizitai_for_flask,
+    'tjekbil': scrape_tjekbil_for_flask
     }
+
+ES_INDICES = {
+    'rekvizitai': 'com_rekvizitai',
+    'tjekbil': 'com_bil'
+}
 
 # Sørg for at output mappen findes
 OUTPUT_FOLDER = 'outputs'
 if not os.path.exists(OUTPUT_FOLDER):
     os.makedirs(OUTPUT_FOLDER)
+
+es = Elasticsearch(
+    "http://localhost:9200",
+    headers={"Accept": "application/json", "Content-Type": "application/json"}
+)
+
+try:
+    if es.ping():
+        print("Hurra connected to ES")
+    else:
+        print("Kunne ikke pinge Elasticsearch.")
+
+except Exception as e:
+    print(f"Forbindelsesfejl: {e}")
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -54,6 +80,24 @@ def index():
         
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
+
+        # --- 2. Overfør data til ElasticSearch ---
+        target_index = ES_INDICES.get(scraper_choice)
+        scraped_items = data.get("results") or data.get("result")
+
+        if es and target_index and scraped_items:
+            # GMT +1 København
+            dansk_tidszone = timezone(timedelta(hours=1))
+            current_time = datetime.now(dansk_tidszone).isoformat()
+
+            for item in scraped_items:
+                item["@timestamp"] = current_time
+                try:
+                    es.index(index=target_index, document=item)
+                except Exception as e:
+                    if "errors" not in data:
+                        data['errors'] = []
+                    data['errors'].append(f"Elasticsearch Index Error: {str(e)}")
 
     return render_template('index.html', data=data)
 

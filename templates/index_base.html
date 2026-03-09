@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Scraper Dashboard</title>
+    <style>
+        body { font-family: sans-serif; max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        .controls { background: #f4f4f4; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; }
+        input, select, button { padding: 8px; margin-right: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #eee; }
+        .metrics { display: flex; gap: 20px; font-weight: bold; margin-bottom: 1rem; }
+        .error { color: red; background: #ffe6e6; padding: 10px; }
+        pre { background: #333; color: #fff; padding: 10px; overflow-x: auto; }
+        details { margin-top: 1rem; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>Scraper Dashboard</h1>
+
+    <div class="controls">
+        <form method="POST">
+            <label>Søgning / URL:</label>
+            <input type="text" name="query" placeholder="F.eks. 'life' eller tom...">
+            
+            <label>Vælg Scraper:</label>
+            <select name="scraper_choice">
+                <option value="quotes">Quotes (BS4)</option>
+                <option value="books">Books (BS4)</option>
+                <option value="books advanced">Books advanced (BS4)</option>
+                <option value="country">Countries (BS4)</option>
+                <option value="selenium quotes">selenium quotes</option>
+                <option value="selenium scroll">selenium quotes scroll</option>
+            </select>
+
+            <button type="submit">Run Scraper</button>
+        </form>
+    </div>
+
+    {% if data %}
+        <hr>
+        <h2>Resultater</h2>
+        
+        <div class="metrics">
+            <span>Tid: {{ data.runtime_ms }} ms</span>
+            <span>Hits: {{ data.results|length }}</span>
+            <span>Kilde: {{ data.source }}</span>
+        </div>
+
+        {% if data.errors %}
+            <div class="error">
+                <strong>Fejl fundet:</strong>
+                <ul>
+                {% for err in data.errors %}
+                    <li>{{ err }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if data.results %}
+        <table>
+            <thead>
+                <tr>
+                    {% for key in data.results[0].keys() %}
+                        <th>{{ key|capitalize }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data.results %}
+                <tr>
+                    {% for cell in row.values() %}
+                        <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>Ingen resultater fundet.</p>
+        {% endif %}
+
+        <details>
+            <summary>Vis rå JSON output</summary>
+            <pre>{{ data | tojson(indent=4) }}</pre>
+        </details>
+    {% endif %}
+
+</body>
+</html>
