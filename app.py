@@ -1,7 +1,9 @@
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Flask, render_template, request
+from elasticsearch import Elasticsearch
+
 from scrapers.example_quotes import scrape_quotes
 from scrapers.mandag_books import scrape_books
 from scrapers.tirsdag_books import scrape_books_advanced
