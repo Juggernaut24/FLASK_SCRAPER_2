@@ -11,6 +11,8 @@ import requests
 import time
 import os
 import re
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 def handle_cookies(driver):
@@ -88,7 +90,7 @@ def km_dato_graph(data_liste, plate, timestamp):
     save_path = os.path.join("outputs", filename)
     
     plt.savefig(save_path)
-    plt.close()
+    plt.close("all")
     print(f"Graf gemt som: {save_path}")
 
 def scrape_tjekbil_data(license_plate: str) -> Dict[str, Any]:
@@ -559,7 +561,7 @@ def scrape_tjekbil_data(license_plate: str) -> Dict[str, Any]:
         # --- Synsrapporter --- #
         #########################
         try:
-            # 1. Find the container and count the rows BEFORE starting the loop
+            
             print("Starter synsrapporter...")
             inspection_container = driver.find_element(By.ID, "inspection")
             row_count = len(inspection_container.find_elements(By.XPATH, ".//table/tbody/tr"))
