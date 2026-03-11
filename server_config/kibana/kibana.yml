@@ -1,0 +1,7 @@
+server.port: 5601
+server.host: "0.0.0.0"
+elasticsearch.hosts: ["http://localhost:9200"]
+
+# This tells Kibana that even though it might want to use SSL, 
+# it should ignore the fact that our Elasticsearch is using plain HTTP.
+elasticsearch.ssl.verificationMode: none
