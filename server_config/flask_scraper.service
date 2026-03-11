@@ -1,0 +1,19 @@
+[Unit]
+Description=Gunicorn instance to serve Flask Scraper
+After=network.target elasticsearch.service
+
+[Service]
+User=mehmet
+Group=www-data
+WorkingDirectory=/home/mehmet/FLASK_SCRAPER_2
+Environment="PATH=/home/mehmet/FLASK_SCRAPER_2/myenv/bin"
+Environment="PYTHONUNBUFFERED=1"
+# Her inkluderer vi både bind, timeout og din app
+ExecStart=/home/mehmet/FLASK_SCRAPER_2/myenv/bin/gunicorn \
+    --workers 3 \
+    --bind 127.0.0.1:8000 \
+    --timeout 300 \
+    app:app
+
+[Install]
+WantedBy=multi-user.target
