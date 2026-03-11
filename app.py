@@ -33,7 +33,6 @@ ES_INDICES = {
     'tjekbil': 'com_bil'
 }
 
-# Sørg for at output mappen findes
 OUTPUT_FOLDER = 'outputs'
 if not os.path.exists(OUTPUT_FOLDER):
     os.makedirs(OUTPUT_FOLDER)
@@ -73,7 +72,6 @@ def index():
                 "errors": ["Scraper ikke implementeret endnu"]
             }
 
-        # 3. Gem resultatet som JSON fil (YYYYMMDD_HHMMSS_scrapername.json)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{timestamp}_{scraper_choice}.json"
         filepath = os.path.join(OUTPUT_FOLDER, filename)
@@ -81,7 +79,6 @@ def index():
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
 
-        # --- 2. Overfør data til ElasticSearch ---
         target_index = ES_INDICES.get(scraper_choice)
         scraped_items = data.get("results") or data.get("result")
 
