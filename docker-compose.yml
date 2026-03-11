@@ -5,9 +5,8 @@ services:
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      # Vi slår sikkerhed fra lokalt for at gøre udvikling og Python-integration nem
       - xpack.security.enabled=false 
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # Begrænser RAM-forbrug til 512MB
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
     networks:
