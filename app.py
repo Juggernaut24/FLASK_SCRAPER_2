@@ -13,9 +13,13 @@ from scrapers.selenium_scrapers.selenium_scraper_3_scroll import scrape_infinite
 from scrapers.new_scrapers.rekvizitai_scraper_3 import scrape_rekvizitai_for_flask
 from scrapers.new_scrapers.tjekbildk_scraper_8 import scrape_tjekbil_for_flask
 
+import urllib3
+
 app = Flask(__name__)
 
 app.json.ensure_ascii = False
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 SCRAPERS = {
     'quotes': scrape_quotes,
@@ -39,7 +43,10 @@ if not os.path.exists(OUTPUT_FOLDER):
     os.makedirs(OUTPUT_FOLDER)
 
 es = Elasticsearch(
-    "http://localhost:9200",
+    "https://localhost:9200",
+    basic_auth=("elastic", "mZUZLZ3sIIbh9H6d3ruv"),
+    verify_certs=False,
+    request_timeout=30,
     headers={"Accept": "application/json", "Content-Type": "application/json"}
 )
 
