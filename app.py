@@ -29,8 +29,8 @@ SCRAPERS = {
     }
 
 ES_INDICES = {
-    'rekvizitai': 'com_rekvizitai',
-    'tjekbil': 'com_bil'
+    'rekvizitai': 'search-com_rekvizitai',
+    'tjekbil': 'search-com_bil'
 }
 
 # Sørg for at output mappen findes

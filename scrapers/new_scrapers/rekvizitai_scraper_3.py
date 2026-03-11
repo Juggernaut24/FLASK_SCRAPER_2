@@ -1,5 +1,6 @@
 from selenium import webdriver
-from selenium.webdriver.edge.options import Options
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -817,13 +818,13 @@ def company_side_scrape(driver, wait, timestamp):
 
 def rekvizitai_scrape(query, timestamp, mode="name"):
 
-    edge_options = Options()
-    edge_options.add_argument("--headless")
-    edge_options.add_argument("--no-sandbox")
-    edge_options.add_argument("--window-size=1920,1080")
-    edge_options.add_argument("--log-level=3")
+    firefox_options = Options()
+    firefox_options.add_argument("--headless")
+    firefox_options.add_argument("--width=1920")
+    firefox_options.add_argument("--height=1080")
     
-    driver = webdriver.Edge(options=edge_options)
+    service = Service()
+    driver = webdriver.Firefox(service=service, options=firefox_options)
 
     safe_query = urllib.parse.quote(query)
 

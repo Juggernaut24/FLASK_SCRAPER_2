@@ -1,6 +1,6 @@
 from selenium import webdriver
-from selenium.webdriver.edge.service import Service
-from selenium.webdriver.edge.options import Options
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -94,16 +94,13 @@ def km_dato_graph(data_liste, plate, timestamp):
     print(f"Graf gemt som: {save_path}")
 
 def scrape_tjekbil_data(license_plate: str) -> Dict[str, Any]:
-    edge_options = Options()
-    edge_options.add_argument("--headless")
-    edge_options.add_argument("--disable-gpu")
-    edge_options.add_argument("--no-sandbox")
-    edge_options.add_argument("--window-size=1920,1080")
-    edge_options.add_argument("--log-level=3")
-    edge_options.add_experimental_option("excludeSwitches", ["enable-logging"])
-
-    service = Service(executable_path="msedgedriver.exe")
-    driver = webdriver.Edge(service=service, options=edge_options)
+    firefox_options = Options()
+    firefox_options.add_argument("--headless")
+    firefox_options.add_argument("--width=1920")
+    firefox_options.add_argument("--height=1080")
+    
+    service = Service()
+    driver = webdriver.Firefox(service=service, options=firefox_options)
 
     handle_cookies(driver)
 
